@@ -162,14 +162,19 @@ const INITIAL_PRODUCTS = [
   }
 ];
 
-// Cargar productos desde localStorage o inicializar forzando actualización
+// Cargar productos desde localStorage o inicializar de forma segura
 export const getProducts = () => {
   const stored = localStorage.getItem('f4a_products');
-  if (!stored || stored.includes('.jpg') || stored.includes('.png')) {
+  if (!stored) {
     localStorage.setItem('f4a_products', JSON.stringify(INITIAL_PRODUCTS));
     return INITIAL_PRODUCTS;
   }
-  return JSON.parse(stored);
+  try {
+    return JSON.parse(stored);
+  } catch (error) {
+    localStorage.setItem('f4a_products', JSON.stringify(INITIAL_PRODUCTS));
+    return INITIAL_PRODUCTS;
+  }
 };
 
 export const getProductById = (id) => {
