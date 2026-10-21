@@ -5,74 +5,116 @@ import { useCart } from '../context/CartContext';
 export const CartPage = () => {
   const { cart, removeFromCart, updateQuantity, clearCart, getCartTotal } = useCart();
 
-  if (cart.length === 0) {
+  // Estado del Carrito Vacío con letras blancas visibles
+  if (!cart || cart.length === 0) {
     return (
-      <div className="container py-5 text-center">
-        <h2 className="mb-3">Tu carrito está vacío 🛒</h2>
-        <p className="text-muted">Explora nuestro catálogo y agrega tus juegos o licencias favoritas.</p>
-        <Link to="/" className="btn btn-success mt-3">Ir a la tienda</Link>
+      <div 
+        className="container my-5 py-5 d-flex flex-column align-items-center justify-content-center text-center"
+        style={{ minHeight: '65vh' }}
+      >
+        <div className="bg-dark p-5 rounded border border-secondary shadow-lg w-100" style={{ maxWidth: '600px' }}>
+          <h2 className="text-white fw-bold mb-3">
+            Tu carrito está vacío 🛒
+          </h2>
+          <p className="text-light mb-4 fs-5">
+            Explora nuestro catálogo y agrega tus juegos o licencias favoritas.
+          </p>
+          <Link to="/" className="btn btn-success fw-bold px-4 py-2 fs-6">
+            Ir a la tienda
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container py-5">
-      <h2 className="text-success border-bottom border-secondary pb-2 mb-4">🛒 Tu Carrito de Compras</h2>
+    <div className="container my-5 py-4" style={{ minHeight: '70vh' }}>
+      <h2 className="text-white fw-bold mb-4">🛒 Carrito de Compras</h2>
+
       <div className="row g-4">
+        {/* Lista de productos en el carrito */}
         <div className="col-lg-8">
-          <div className="table-responsive">
-            <table className="table table-dark table-hover align-middle">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Precio</th>
-                  <th>Cantidad</th>
-                  <th>Subtotal</th>
-                  <th>Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cart.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <div className="d-flex align-items-center gap-2">
-                        <img src={item.imagen} alt={item.nombre} width="50" height="40" className="rounded object-fit-cover" />
-                        <span className="fw-semibold">{item.nombre}</span>
-                      </div>
-                    </td>
-                    <td>${item.precio.toLocaleString('es-CL')}</td>
-                    <td>
-                      <input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
-                        className="form-control form-control-sm bg-dark text-white border-secondary w-auto"
-                      />
-                    </td>
-                    <td className="text-success fw-bold">${(item.precio * item.quantity).toLocaleString('es-CL')}</td>
-                    <td>
-                      <button onClick={() => removeFromCart(item.id)} className="btn btn-sm btn-outline-danger">
-                        ❌
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="d-flex flex-column gap-3">
+            {cart.map((item) => (
+              <div 
+                key={item.id} 
+                className="card bg-dark text-white border-secondary p-3 shadow-sm d-flex flex-row align-items-center justify-content-between gap-3"
+              >
+                <img
+                  src={item.imagen || item.image}
+                  alt={item.nombre || item.title}
+                  className="rounded object-fit-cover"
+                  style={{ width: '80px', height: '80px' }}
+                />
+
+                <div className="flex-grow-1">
+                  <h5 className="fw-bold mb-1 text-white">{item.nombre || item.title}</h5>
+                  <p className="text-success fw-bold mb-0">
+                    ${item.precio?.toLocaleString('es-CL')} CLP
+                  </p>
+                </div>
+
+                {/* Controles de cantidad */}
+                <div className="d-flex align-items-center gap-2">
+                  <button
+                    className="btn btn-sm btn-outline-secondary text-white fw-bold"
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                  >
+                    -
+                  </button>
+                  <span className="fw-bold px-2 text-white">{item.quantity}</span>
+                  <button
+                    className="btn btn-sm btn-outline-secondary text-white fw-bold"
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                  >
+                    +
+                  </button>
+                </div>
+
+                {/* Eliminar elemento */}
+                <button
+                  className="btn btn-outline-danger btn-sm"
+                  onClick={() => removeFromCart(item.id)}
+                >
+                  🗑️
+                </button>
+              </div>
+            ))}
           </div>
-          <button onClick={clearCart} className="btn btn-outline-warning btn-sm">Vaciar Carrito</button>
+
+          <button 
+            className="btn btn-outline-secondary text-white btn-sm mt-3"
+            onClick={clearCart}
+          >
+            Vaciar Carrito
+          </button>
         </div>
 
+        {/* Resumen de compra */}
         <div className="col-lg-4">
-          <div className="bg-dark p-4 rounded border border-secondary">
-            <h4 className="fw-bold mb-3 border-bottom border-secondary pb-2">Resumen</h4>
-            <div className="d-flex justify-content-between mb-3 fs-5">
-              <span>Total:</span>
+          <div className="card bg-dark text-white border-secondary p-4 shadow-lg">
+            <h4 className="fw-bold mb-3 text-white">Resumen</h4>
+            <hr className="border-secondary" />
+            
+            <div className="d-flex justify-content-between mb-2">
+              <span className="text-secondary">Subtotal:</span>
+              <span className="fw-bold text-white">${getCartTotal().toLocaleString('es-CL')} CLP</span>
+            </div>
+            
+            <div className="d-flex justify-content-between mb-4">
+              <span className="text-secondary">Envío Digital:</span>
+              <span className="text-success fw-bold">GRATIS (Inmediato)</span>
+            </div>
+
+            <hr className="border-secondary" />
+
+            <div className="d-flex justify-content-between mb-4 fs-5">
+              <span className="fw-bold text-white">Total:</span>
               <span className="text-success fw-bold">${getCartTotal().toLocaleString('es-CL')} CLP</span>
             </div>
-            <Link to="/checkout" className="btn btn-success w-100 btn-lg fw-semibold">
-              Proceder al Pago
+
+            <Link to="/checkout" className="btn btn-success fw-bold w-100 py-2">
+              Proceder al Pago 💳
             </Link>
           </div>
         </div>

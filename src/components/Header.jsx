@@ -1,11 +1,13 @@
 // src/components/Header.jsx
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 export const Header = () => {
   const { getCartCount } = useCart();
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   const currencies = [
     { code: 'CLP', flag: '/imagenes/pago/chile.webp', name: 'Chile' },
@@ -15,12 +17,23 @@ export const Header = () => {
 
   const [selectedCurrency, setSelectedCurrency] = useState(currencies[0]);
 
+  // Manejo de búsqueda: Redirige a la vista de producto pasando la consulta para mostrar las tarjetas en vertical
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const cleanTerm = searchTerm.trim();
+    if (!cleanTerm) return;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate(`/producto/1?search=${encodeURIComponent(cleanTerm)}`);
+    setSearchTerm('');
+  };
+
   return (
     <header className="bg-dark text-white sticky-top border-bottom border-secondary shadow-sm">
       <div className="container py-2">
         <div className="row align-items-center g-2">
           
-          {/* Logo F4A Oficial */}
+          {/* Logo */}
           <div className="col-auto me-auto">
             <Link className="navbar-brand d-flex align-items-center text-decoration-none" to="/">
               <img 
@@ -35,18 +48,21 @@ export const Header = () => {
             </Link>
           </div>
 
+          {/* Buscador Escritorio */}
           <div className="col-lg-5 d-none d-lg-block">
-            <form className="d-flex" onSubmit={(e) => e.preventDefault()}>
+            <form className="d-flex" onSubmit={handleSearch}>
               <input
                 className="form-control me-2 bg-dark text-light border-secondary"
                 type="search"
                 placeholder="Buscar juegos, licencias, suscripciones..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
               <button className="btn btn-success fw-bold" type="submit">Buscar</button>
             </form>
           </div>
 
-          {/* Monedas + Login + Carrito */}
+          {/* Selector de Moneda + Login + Carrito */}
           <div className="col-auto text-end d-flex align-items-center gap-2">
             
             <div className="dropdown me-1 position-relative">
@@ -106,13 +122,15 @@ export const Header = () => {
             </Link>
           </div>
 
-          {/* Buscador para Móviles y Tablets (< 992px) */}
+          {/* Buscador Móvil */}
           <div className="col-12 d-lg-none mt-2">
-            <form className="d-flex" onSubmit={(e) => e.preventDefault()}>
+            <form className="d-flex" onSubmit={handleSearch}>
               <input
                 className="form-control me-2 bg-dark text-light border-secondary"
                 type="search"
                 placeholder="Buscar juegos, licencias, suscripciones..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
               <button className="btn btn-success fw-bold" type="submit">Buscar</button>
             </form>
@@ -121,7 +139,7 @@ export const Header = () => {
         </div>
       </div>
 
-      {/* Menú de Categorías */}
+      {/* Navegación por Categorías */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-black border-top border-secondary py-1">
         <div className="container">
           <button
