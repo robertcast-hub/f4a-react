@@ -1,216 +1,208 @@
 // src/data/dataService.js
+// "Base de datos" simulada de la tienda. Expone un servicio por entidad,
+// todos con CRUD (getAll, getById, create, update, remove) + consultas propias.
+// Los componentes SIEMPRE llaman a estos objetos (productService.getAll(), etc.),
+// lo que permite reemplazarlos por mocks en las pruebas con spyOn().
 
-const INITIAL_PRODUCTS = [
-  // Gaming
-  {
-    id: '1',
-    nombre: 'Final Fantasy VII Remake Intergrade',
-    categoria: 'gaming',
-    precio: 29990,
-    precioUSD: 34.99,
-    precioEUR: 31.99,
-    imagen: '/imagenes/FFVIIR.webp',
-    descripcion: 'Inolvidable historia reinventada con combate en tiempo real y gráficos deslumbrantes.',
-    destacado: true
-  },
-  {
-    id: '2',
-    nombre: 'Grand Theft Auto V: Premium Edition',
-    categoria: 'gaming',
-    precio: 14990,
-    precioUSD: 17.99,
-    precioEUR: 16.49,
-    imagen: '/imagenes/gta5.webp',
-    descripcion: 'Incluye la historia completa de GTA V y acceso a GTA Online.',
-    destacado: true
-  },
-  {
-    id: '3',
-    nombre: 'Grand Theft Auto VI',
-    categoria: 'gaming',
-    precio: 69990,
-    precioUSD: 69.99,
-    precioEUR: 69.99,
-    imagen: '/imagenes/gta6.webp',
-    descripcion: 'Reserva anticipada del esperado título de Rockstar Games en Vice City.',
-    destacado: true
-  },
-  {
-    id: '4',
-    nombre: 'Tom Clancy\'s Rainbow Six Siege',
-    categoria: 'gaming',
-    precio: 9990,
-    precioUSD: 11.99,
-    precioEUR: 10.99,
-    imagen: '/imagenes/R6Game.webp',
-    descripcion: 'Shooter táctico de alto impacto 5v5 enfocado en la destrucción y estrategia.',
-    destacado: false
-  },
-  {
-    id: '5',
-    nombre: 'Minecraft Java & Bedrock Edition',
-    categoria: 'gaming',
-    precio: 19990,
-    precioUSD: 23.99,
-    precioEUR: 21.99,
-    imagen: '/imagenes/MinecraftLogo.webp',
-    descripcion: 'Explora mundos infinitos y construye todo lo que puedas imaginar.',
-    destacado: true
-  },
-  {
-    id: '6',
-    nombre: 'Warhammer 40k: Space Marine 2',
-    categoria: 'gaming',
-    precio: 45990,
-    precioUSD: 49.99,
-    precioEUR: 45.99,
-    imagen: '/imagenes/bannerMarines.webp',
-    descripcion: 'Encarna la habilidad sobrehumana y la brutalidad de un Space Marine.',
-    destacado: false
-  },
-  {
-    id: '7',
-    nombre: 'World of Warcraft: The War Within',
-    categoria: 'gaming',
-    precio: 39990,
-    precioUSD: 44.99,
-    precioEUR: 39.99,
-    imagen: '/imagenes/wow.webp',
-    descripcion: 'Defiende Azeroth de las sombras de las profundidades.',
-    destacado: false
-  },
-  // Software
-  {
-    id: '8',
-    nombre: 'Windows 11 Pro Key',
-    categoria: 'software',
-    precio: 12990,
-    precioUSD: 14.99,
-    precioEUR: 13.99,
-    imagen: '/imagenes/OIP.webp',
-    descripcion: 'Licencia digital vitalicia de Windows 11 Profesional para 1 PC.',
-    destacado: true
-  },
-  {
-    id: '9',
-    nombre: 'Microsoft Excel 2021',
-    categoria: 'software',
-    precio: 14990,
-    precioUSD: 16.99,
-    precioEUR: 15.99,
-    imagen: '/imagenes/excel.webp',
-    descripcion: 'Licencia individual de Excel 2021 para gestión de hojas de cálculo.',
-    destacado: false
-  },
-  // Subscripciones
-  {
-    id: '10',
-    nombre: 'ChatGPT Plus (Suscripción 1 Mes)',
-    categoria: 'subscripciones',
-    precio: 18990,
-    precioUSD: 20.00,
-    precioEUR: 18.99,
-    imagen: '/imagenes/gpt.webp',
-    descripcion: 'Acceso a GPT-4o, generación de imágenes y respuestas prioritarias.',
-    destacado: true
-  },
-  {
-    id: '11',
-    nombre: 'Spotify Premium 3 Meses',
-    categoria: 'subscripciones',
-    precio: 11990,
-    precioUSD: 13.99,
-    precioEUR: 12.99,
-    imagen: '/imagenes/open-graph-default.webp',
-    descripcion: 'Música sin anuncios y reproducción sin conexión.',
-    destacado: true
-  },
-  {
-    id: '12',
-    nombre: 'YouTube Music Premium (1 Mes)',
-    categoria: 'subscripciones',
-    precio: 4990,
-    precioUSD: 5.99,
-    precioEUR: 5.49,
-    imagen: '/imagenes/yt_music.webp',
-    descripcion: 'Escucha millones de canciones sin interrupciones y en segundo plano.',
-    destacado: false
-  },
-  // Regalos
-  {
-    id: '13',
-    nombre: 'Tarjeta de Regalo F4A Game Card',
-    categoria: 'regalos',
-    precio: 18500,
-    precioUSD: 20.00,
-    precioEUR: 18.50,
-    imagen: '/imagenes/banner_tarjetaRegalo.webp',
-    descripcion: 'Agrega saldo de forma instantánea a tu billetera F4A.',
-    destacado: true
-  },
-  // Random Key
-  {
-    id: '14',
-    nombre: 'Steam Random Key VIP',
-    categoria: 'randomkey',
-    precio: 2990,
-    precioUSD: 3.50,
-    precioEUR: 3.20,
-    imagen: '/imagenes/banner_randomkey.webp',
-    descripcion: 'Consigue una clave aleatoria de Steam con valor garantizado.',
-    destacado: true
-  }
-];
+import { createRepository, storage } from './storage';
+import { PRODUCTOS, CATEGORIAS, USUARIOS, ORDENES, BLOGS, REGIONES } from './db';
 
-// Cargar productos desde localStorage o inicializar de forma segura
-export const getProducts = () => {
-  const stored = localStorage.getItem('f4a_products');
-  if (!stored) {
-    localStorage.setItem('f4a_products', JSON.stringify(INITIAL_PRODUCTS));
-    return INITIAL_PRODUCTS;
-  }
-  try {
-    return JSON.parse(stored);
-  } catch (error) {
-    localStorage.setItem('f4a_products', JSON.stringify(INITIAL_PRODUCTS));
-    return INITIAL_PRODUCTS;
-  }
+const KEYS = {
+  products: 'f4a_products',
+  categories: 'f4a_categories',
+  users: 'f4a_users',
+  orders: 'f4a_orders',
+  session: 'f4a_session',
 };
 
-export const getProductById = (id) => {
-  const products = getProducts();
-  return products.find(p => p.id === id);
+const normalize = (text = '') =>
+  text.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+export const precioFinal = (product) =>
+  product.precioOferta != null && product.precioOferta < product.precio
+    ? product.precioOferta
+    : product.precio;
+
+/* ---------------------------- PRODUCTOS ---------------------------- */
+export const productService = {
+  ...createRepository(KEYS.products, PRODUCTOS, 'P'),
+
+  getByCategory(categoryId) {
+    if (!categoryId) return this.getAll();
+    return this.getAll().filter((p) => p.categoria === categoryId);
+  },
+  getFeatured() {
+    return this.getAll().filter((p) => p.destacado);
+  },
+  getOffers() {
+    return this.getAll().filter((p) => p.precioOferta != null && p.precioOferta < p.precio);
+  },
+  getCritical() {
+    return this.getAll().filter((p) => Number(p.stock) <= Number(p.stockCritico));
+  },
+  search({ query = '', categoria = '', orden = '' } = {}) {
+    const q = normalize(query);
+    let list = this.getAll().filter((p) => {
+      const matchText = !q || normalize(p.nombre).includes(q) || normalize(p.descripcion).includes(q);
+      const matchCat = !categoria || p.categoria === categoria;
+      return matchText && matchCat;
+    });
+    if (orden === 'precio-asc') list = [...list].sort((a, b) => precioFinal(a) - precioFinal(b));
+    if (orden === 'precio-desc') list = [...list].sort((a, b) => precioFinal(b) - precioFinal(a));
+    if (orden === 'nombre') list = [...list].sort((a, b) => a.nombre.localeCompare(b.nombre));
+    return list;
+  },
+  /** Descuenta stock al confirmar una compra */
+  decreaseStock(items) {
+    items.forEach(({ id, cantidad }) => {
+      const product = this.getById(id);
+      if (product) this.update(id, { stock: Math.max(0, Number(product.stock) - cantidad) });
+    });
+  },
 };
 
-export const getProductsByCategory = (category) => {
-  const products = getProducts();
-  if (!category || category === 'todas') return products;
-  return products.filter(p => p.categoria.toLowerCase() === category.toLowerCase());
+/* ---------------------------- CATEGORÍAS ---------------------------- */
+export const categoryService = {
+  ...createRepository(KEYS.categories, CATEGORIAS, 'C'),
+  countProducts(categoryId) {
+    return productService.getByCategory(categoryId).length;
+  },
 };
 
-export const addProduct = (newProduct) => {
-  const products = getProducts();
-  const productToAdd = { ...newProduct, id: Date.now().toString() };
-  const updated = [...products, productToAdd];
-  localStorage.setItem('f4a_products', JSON.stringify(updated));
-  return updated;
+/* ----------------------------- USUARIOS ----------------------------- */
+export const userService = {
+  ...createRepository(KEYS.users, USUARIOS, 'U'),
+  getByEmail(email) {
+    return this.getAll().find((u) => normalize(u.email) === normalize(email)) ?? null;
+  },
+  emailExists(email, exceptId = null) {
+    const user = this.getByEmail(email);
+    return Boolean(user && user.id !== exceptId);
+  },
 };
 
-export const updateProduct = (id, updatedData) => {
-  const products = getProducts();
-  const updated = products.map(p => p.id === id ? { ...p, ...updatedData } : p);
-  localStorage.setItem('f4a_products', JSON.stringify(updated));
-  return updated;
+/* ------------------------------ ÓRDENES ----------------------------- */
+export const orderService = {
+  ...createRepository(KEYS.orders, ORDENES, 'ORD-'),
+  getByUser(userId) {
+    return this.getAll().filter((o) => o.usuarioId === userId);
+  },
+  /**
+   * Registra una orden. El pago se simula: `simularRechazo` permite demostrar el flujo de error.
+   */
+  checkout({ cliente, cart, usuarioId = null, simularRechazo = false }) {
+    const items = cart.map((p) => ({
+      id: p.id,
+      nombre: p.nombre,
+      precioUnitario: precioFinal(p),
+      cantidad: p.quantity,
+    }));
+    const total = items.reduce((acc, i) => acc + i.precioUnitario * i.cantidad, 0);
+    const estado = simularRechazo ? 'rechazada' : 'pagada';
+    const order = this.create({
+      id: `ORD-${Date.now()}`,
+      fecha: new Date().toISOString(),
+      estado,
+      usuarioId,
+      cliente,
+      items,
+      total,
+    });
+    if (estado === 'pagada') productService.decreaseStock(items);
+    return order;
+  },
 };
 
-export const deleteProduct = (id) => {
-  const products = getProducts();
-  const updated = products.filter(p => p.id !== id);
-  localStorage.setItem('f4a_products', JSON.stringify(updated));
-  return updated;
+/* --------------------------- AUTENTICACIÓN -------------------------- */
+export const authService = {
+  getSession() {
+    return storage.read(KEYS.session, null);
+  },
+  login(email, password) {
+    const user = userService.getByEmail(email);
+    if (!user || user.password !== password) {
+      return { ok: false, error: 'Correo o contraseña incorrectos.' };
+    }
+    const { password: _omit, ...session } = user;
+    storage.write(KEYS.session, session);
+    return { ok: true, user: session };
+  },
+  logout() {
+    storage.remove(KEYS.session);
+  },
+  register(data) {
+    if (userService.emailExists(data.email)) {
+      return { ok: false, error: 'Ya existe una cuenta con ese correo.' };
+    }
+    const user = userService.create({ ...data, rol: 'cliente' });
+    return { ok: true, user };
+  },
+  refreshSession(user) {
+    const { password: _omit, ...session } = user;
+    return storage.write(KEYS.session, session);
+  },
 };
 
-export const resetProductsToDefault = () => {
-  localStorage.setItem('f4a_products', JSON.stringify(INITIAL_PRODUCTS));
-  return INITIAL_PRODUCTS;
+/* -------------------- CONTENIDO DE SOLO LECTURA -------------------- */
+export const blogService = {
+  getAll: () => BLOGS,
+  getById: (id) => BLOGS.find((b) => b.id === id) ?? null,
+};
+
+export const regionService = {
+  getAll: () => REGIONES,
+  getComunas: (region) => REGIONES.find((r) => r.nombre === region)?.comunas ?? [],
+};
+
+/* ---------------------------- REPORTES ----------------------------- */
+export const reportService = {
+  summary() {
+    const orders = orderService.getAll();
+    const paid = orders.filter((o) => o.estado === 'pagada');
+    const products = productService.getAll();
+    return {
+      totalOrdenes: orders.length,
+      ordenesPagadas: paid.length,
+      ordenesRechazadas: orders.length - paid.length,
+      ingresos: paid.reduce((acc, o) => acc + o.total, 0),
+      totalProductos: products.length,
+      productosCriticos: productService.getCritical().length,
+      totalUsuarios: userService.getAll().length,
+      valorInventario: products.reduce((acc, p) => acc + precioFinal(p) * Number(p.stock), 0),
+    };
+  },
+  salesByCategory() {
+    const products = productService.getAll();
+    const totals = {};
+    orderService.getAll()
+      .filter((o) => o.estado === 'pagada')
+      .forEach((o) => o.items.forEach((i) => {
+        const cat = products.find((p) => p.id === i.id)?.categoria ?? 'otros';
+        totals[cat] = (totals[cat] ?? 0) + i.precioUnitario * i.cantidad;
+      }));
+    return categoryService.getAll()
+      .map((c) => ({ categoria: c.nombre, total: totals[c.id] ?? 0 }))
+      .sort((a, b) => b.total - a.total);
+  },
+  topProducts(limit = 5) {
+    const units = {};
+    orderService.getAll()
+      .filter((o) => o.estado === 'pagada')
+      .forEach((o) => o.items.forEach((i) => {
+        units[i.nombre] = (units[i.nombre] ?? 0) + i.cantidad;
+      }));
+    return Object.entries(units)
+      .map(([nombre, cantidad]) => ({ nombre, cantidad }))
+      .sort((a, b) => b.cantidad - a.cantidad)
+      .slice(0, limit);
+  },
+};
+
+/** Restaura todos los datos semilla (útil para demo y pruebas) */
+export const resetDatabase = () => {
+  productService.reset();
+  categoryService.reset();
+  userService.reset();
+  orderService.reset();
+  authService.logout();
 };

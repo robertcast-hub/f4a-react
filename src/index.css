@@ -1,163 +1,132 @@
-:root {
-  /* Verde Neón del Logo F4A */
-  --bs-success: #00E661 !important;
-  --bs-success-rgb: 0, 230, 97 !important;
-
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+/* src/index.css — identidad F4A sobre Bootstrap 5 (modo oscuro con data-bs-theme="dark") */
+:root,
+[data-bs-theme='dark'] {
+  --f4a-green: #00e661;
+  --f4a-green-dark: #00c853;
+  --f4a-bg: #000;
+  --f4a-surface: #15171a;
+  --f4a-surface-2: #1f2226;
+  --f4a-line: #2d3136;
+  --bs-body-bg: var(--f4a-bg);
+  --bs-body-font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --bs-success: var(--f4a-green);
+  --bs-success-rgb: 0, 230, 97;
+  --bs-link-color: var(--f4a-green);
+  --bs-link-color-rgb: 0, 230, 97;
+  --bs-link-hover-color: #7dffb3;
+  --bs-border-color: var(--f4a-line);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #f3f4f6;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+h1, h2, h3, .h1, .h2, .h3, .h4, .h5, .brand-name, .price {
+  font-family: 'Chakra Petch', 'Inter', system-ui, sans-serif;
 }
 
-/* Sobreescritura de Bootstrap para el Verde del Logo F4A */
-
-/* Textos en verde */
-.text-success {
-  color: #00E661 !important;
-}
-
-/* Botones principales en verde */
 .btn-success {
-  background-color: #00E661 !important;
-  border-color: #00E661 !important;
-  color: #000000 !important; /* Texto negro para contraste legible */
+  --bs-btn-bg: var(--f4a-green);
+  --bs-btn-border-color: var(--f4a-green);
+  --bs-btn-color: #000;
+  --bs-btn-hover-bg: var(--f4a-green-dark);
+  --bs-btn-hover-border-color: var(--f4a-green-dark);
+  --bs-btn-hover-color: #000;
+  --bs-btn-active-bg: var(--f4a-green-dark);
+  --bs-btn-active-color: #000;
+  --bs-btn-disabled-bg: var(--f4a-green);
+  --bs-btn-disabled-color: #000;
   font-weight: 700;
 }
-
-.btn-success:hover,
-.btn-success:focus,
-.btn-success:active {
-  background-color: #00C853 !important;
-  border-color: #00C853 !important;
-  color: #000000 !important;
-}
-
-/* Botones de borde verde */
 .btn-outline-success {
-  color: #00E661 !important;
-  border-color: #00E661 !important;
+  --bs-btn-color: var(--f4a-green);
+  --bs-btn-border-color: var(--f4a-green);
+  --bs-btn-hover-bg: var(--f4a-green);
+  --bs-btn-hover-color: #000;
+}
+.text-success { color: var(--f4a-green) !important; }
+.bg-success, .progress-bar.bg-success { background-color: var(--f4a-green) !important; }
+.text-bg-success { background-color: var(--f4a-green) !important; color: #000 !important; }
+
+:focus-visible { outline: 2px solid var(--f4a-green); outline-offset: 2px; }
+
+/* ---------- Encabezado ---------- */
+.site-header { background: var(--f4a-surface); border-bottom: 1px solid var(--f4a-line); }
+.brand-name { font-weight: 700; color: #fff; }
+.search-form { min-width: 220px; max-width: 520px; }
+.main-nav { background: #000; border-color: var(--f4a-line) !important; }
+.main-nav .nav-link { color: #e9ecef; font-weight: 600; }
+.main-nav .nav-link.active, .main-nav .nav-link:hover { color: var(--f4a-green); }
+.main-nav .dropdown-menu { position: absolute; }
+@media (max-width: 991.98px) {
+  .main-nav .dropdown-menu { position: static; border: 0; background: transparent; }
 }
 
-.btn-outline-success:hover {
-  background-color: #00E661 !important;
-  color: #000000 !important;
+/* ---------- Hero / carrusel ---------- */
+.hero { position: relative; border-radius: 1rem; overflow: hidden; min-height: 320px; display: flex; align-items: flex-end; }
+.hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(.45); }
+.hero__body { position: relative; padding: clamp(1.5rem, 4vw, 3rem); max-width: 640px; }
+.hero__dots { position: absolute; right: 1.25rem; bottom: 1.25rem; display: flex; gap: .5rem; }
+.hero__dots button { width: 28px; height: 6px; border: 0; border-radius: 3px; background: rgba(255,255,255,.4); }
+.hero__dots button.active { background: var(--f4a-green); }
+
+/* ---------- Tarjetas ---------- */
+.product-card { background: var(--f4a-surface); border-color: var(--f4a-line); overflow: hidden; }
+.product-card__media { position: relative; display: block; aspect-ratio: 4 / 3; background: #000; }
+.product-card__media img { width: 100%; height: 100%; object-fit: cover; }
+.product-card__tag { position: absolute; top: .6rem; left: .6rem; }
+.clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.6em; }
+.price { color: var(--f4a-green); font-weight: 700; }
+
+.category-card { position: relative; display: block; border-radius: .75rem; overflow: hidden; aspect-ratio: 16 / 10; color: #fff; }
+.category-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(.5); transition: transform .3s; }
+.category-card:hover img { transform: scale(1.04); }
+.category-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.9), rgba(0,0,0,.15) 70%); }
+.category-card__body { position: absolute; left: 0; bottom: 0; padding: 1rem; z-index: 1; text-shadow: 0 1px 3px #000; }
+
+.blog-card { background: var(--f4a-surface); }
+.blog-card img { aspect-ratio: 16 / 7; object-fit: cover; }
+.detail-img { aspect-ratio: 4 / 3; object-fit: cover; }
+
+/* ---------- Carrito / checkout / resultados ---------- */
+.cart-row, .summary-box, .checkout, .result, .auth-card, .empty-state, .filters {
+  background: var(--f4a-surface);
+  border: 1px solid var(--f4a-line);
+  border-radius: .75rem;
+}
+.filters { padding: 1rem; margin-left: 0; margin-right: 0; }
+.quantity { width: auto; }
+.quantity .input-group-text { min-width: 2.75rem; }
+.result--ok { border-top: 4px solid var(--f4a-green); }
+.result--error { border-top: 4px solid var(--bs-danger); }
+.receipt .form-control[readonly], .receipt .form-select:disabled { background: var(--f4a-surface-2); }
+
+/* ---------- Pie ---------- */
+.site-footer { background: var(--f4a-surface); border-top: 1px solid var(--f4a-line); }
+.site-footer a { color: #e9ecef; text-decoration: none; }
+.site-footer a:hover { color: var(--f4a-green); }
+
+/* ---------- Panel administrativo ---------- */
+.admin { background: #0b0c0e; }
+.admin-sidebar { background: var(--f4a-surface); border-right: 1px solid var(--f4a-line); }
+@media (min-width: 992px) {
+  .admin-sidebar { width: 240px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+}
+.admin-sidebar .nav-link { color: #ced4da; border-radius: .5rem; }
+.admin-sidebar .nav-link.active { background: var(--f4a-green); color: #000; font-weight: 700; }
+.admin-sidebar .nav-link:hover:not(.active) { background: var(--f4a-surface-2); color: #fff; }
+.admin-topbar { border-bottom: 1px solid var(--f4a-line); }
+.admin-panel { background: var(--f4a-surface); border: 1px solid var(--f4a-line); border-radius: .75rem; }
+.admin-panel .table { --bs-table-bg: transparent; }
+.admin-tile { background: var(--f4a-surface); border: 1px solid var(--f4a-line); border-radius: .75rem; color: #e9ecef; }
+.admin-tile:hover { border-color: var(--f4a-green); }
+.stat-card { border-radius: .75rem; color: #fff; }
+.stat-card--primary { background: #0d47a1; }
+.stat-card--success { background: #00733a; }
+.stat-card--warning { background: #8a5a00; }
+.stat-card--info { background: #0b5563; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; scroll-behavior: auto !important; }
 }
 
-/* Badges y fondos verdes */
-.bg-success {
-  background-color: #00E661 !important;
-  color: #000000 !important;
-}
-
-/* Bordes verdes */
-.border-success {
-  border-color: #00E661 !important;
-}
-
-/* Estilos base del documento */
-body {
-  margin: 0;
-}
-
-#root {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  text-align: inherit;
-  border-inline: none;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-
-p {
-  margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+@media print {
+  .site-header, .site-footer, .admin-sidebar, .admin-topbar, .no-print { display: none !important; }
+  body { background: #fff; color: #000; }
 }

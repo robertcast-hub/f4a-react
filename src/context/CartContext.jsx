@@ -1,77 +1,62 @@
 // src/context/CartContext.jsx
-import { createContext, useState, useEffect, useContext } from 'react';
+// Estado global del carrito. Se persiste en localStorage para no perderlo al recargar.
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { storage } from '../data/storage';
+import { precioFinal } from '../data/dataService';
 
-const CartContext = createContext();
+const CART_KEY = 'f4a_cart';
+const CartContext = createContext(null);
 
-export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(() => {
-    const storedCart = localStorage.getItem('f4a_cart');
-    return storedCart ? JSON.parse(storedCart) : [];
-  });
+export const CartProvider = ({ children, initialCart }) => {
+  const [cart, setCart] = useState(() => initialCart ?? storage.read(CART_KEY, []));
 
   useEffect(() => {
-    localStorage.setItem('f4a_cart', JSON.stringify(cart));
+    storage.write(CART_KEY, cart);
   }, [cart]);
 
-  // Agregar producto al carrito
   const addToCart = (product, quantity = 1) => {
-    setCart((prevCart) => {
-      const existingIndex = prevCart.findIndex((item) => item.id === product.id);
-      if (existingIndex > -1) {
-        const updated = [...prevCart];
-        updated[existingIndex].quantity += quantity;
-        return updated;
+    setCart((prev) => {
+      const existing = prev.find((item) => item.id === product.id);
+      if (existing) {
+        // Inmutable: se crea un objeto nuevo en vez de mutar el existente
+        return prev.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: Math.min(item.quantity + quantity, product.stock ?? Infinity) }
+            : item,
+        );
       }
-      return [...prevCart, { ...product, quantity }];
+      return [...prev, { ...product, quantity }];
     });
   };
 
-  // Remover producto
-  const removeFromCart = (id) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
-  };
+  const removeFromCart = (id) => setCart((prev) => prev.filter((item) => item.id !== id));
 
-  // Actualizar cantidad
   const updateQuantity = (id, quantity) => {
     if (quantity <= 0) {
       removeFromCart(id);
       return;
     }
-    setCart((prevCart) =>
-      prevCart.map((item) => (item.id === id ? { ...item, quantity } : item))
-    );
+    setCart((prev) => prev.map((item) => (item.id === id ? { ...item, quantity } : item)));
   };
 
-  // Limpiar carrito
-  const clearCart = () => {
-    setCart([]);
-  };
+  const clearCart = () => setCart([]);
 
-  // Calcular total acumulado
-  const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.precio * item.quantity, 0);
-  };
-
-  // Cantidad total de ítems
-  const getCartCount = () => {
-    return cart.reduce((count, item) => count + item.quantity, 0);
-  };
-
-  return (
-    <CartContext.Provider
-      value={{
-        cart,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        getCartTotal,
-        getCartCount,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
+  // Valores derivados: se recalculan solo cuando cambia el carrito
+  const { total, count } = useMemo(
+    () => ({
+      total: cart.reduce((acc, item) => acc + precioFinal(item) * item.quantity, 0),
+      count: cart.reduce((acc, item) => acc + item.quantity, 0),
+    }),
+    [cart],
   );
+
+  const value = { cart, addToCart, removeFromCart, updateQuantity, clearCart, total, count };
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
 
-export const useCart = () => useContext(CartContext);
+// eslint-disable-next-line react-refresh/only-export-components
+export const useCart = () => {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error('useCart debe usarse dentro de <CartProvider>');
+  return ctx;
+};
