@@ -1,10 +1,10 @@
 // src/context/CartContext.jsx
 // Estado global del carrito. Se persiste en localStorage para no perderlo al recargar.
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { storage } from '../data/storage';
+import { storage, KEYS } from '../data/storage';
 import { precioFinal } from '../data/dataService';
 
-const CART_KEY = 'f4a_cart';
+const CART_KEY = KEYS.cart;
 const CartContext = createContext(null);
 
 export const CartProvider = ({ children, initialCart }) => {

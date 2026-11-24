@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { orderService } from '../../data/dataService';
 import { formatCLP, formatDate } from '../../utils/format';
+import { getPaymentMethod } from '../../utils/payment';
 import { PageTitle } from '../../components/common/PageTitle';
 
 export const OrdersPage = () => {
@@ -22,13 +23,14 @@ export const OrdersPage = () => {
       </PageTitle>
       <div className="table-responsive admin-panel">
         <table className="table table-hover align-middle mb-0">
-          <thead><tr><th>Código</th><th>Fecha</th><th>Cliente</th><th>Estado</th><th className="text-end">Total</th><th /></tr></thead>
+          <thead><tr><th>Código</th><th>Fecha</th><th>Cliente</th><th>Medio de pago</th><th>Estado</th><th className="text-end">Total</th><th /></tr></thead>
           <tbody>
             {orders.map((o) => (
               <tr key={o.id}>
                 <td className="text-nowrap">{o.id}</td>
                 <td>{formatDate(o.fecha)}</td>
                 <td>{o.cliente.nombre} {o.cliente.apellidos}</td>
+                <td>{getPaymentMethod(o.pago?.metodo)?.nombre ?? '—'}</td>
                 <td><span className={`badge ${o.estado === 'pagada' ? 'text-bg-success' : 'text-bg-danger'}`}>{o.estado}</span></td>
                 <td className="text-end">{formatCLP(o.total)}</td>
                 <td className="text-end"><Link to={`/admin/ordenes/${o.id}`} className="btn btn-sm btn-outline-light">Ver boleta</Link></td>

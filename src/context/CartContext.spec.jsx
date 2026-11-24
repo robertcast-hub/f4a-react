@@ -76,7 +76,7 @@ describe('CartContext', () => {
   it('persiste el carrito en localStorage', () => {
     setup();
     click('add1');
-    expect(JSON.parse(localStorage.getItem('f4a_cart'))[0].id).toBe('T1');
+    expect(JSON.parse(localStorage.getItem('f4a_v3_cart'))[0].id).toBe('T1');
   });
 
   it('useCart fuera del Provider lanza un error descriptivo', () => {

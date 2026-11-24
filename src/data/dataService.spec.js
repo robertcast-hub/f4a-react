@@ -10,7 +10,7 @@ describe('dataService', () => {
     it('getAll inicializa localStorage con los datos semilla', () => {
       const all = productService.getAll();
       expect(all.length).toBeGreaterThan(10);
-      expect(JSON.parse(localStorage.getItem('f4a_products')).length).toBe(all.length);
+      expect(JSON.parse(localStorage.getItem('f4a_v3_products')).length).toBe(all.length);
     });
 
     it('create agrega un producto con id generado y lo persiste', () => {
@@ -39,7 +39,7 @@ describe('dataService', () => {
     });
 
     it('si localStorage está corrupto vuelve a los datos semilla', () => {
-      localStorage.setItem('f4a_products', '{json roto');
+      localStorage.setItem('f4a_v3_products', '{json roto');
       expect(productService.getAll().length).toBeGreaterThan(10);
     });
   });
@@ -85,12 +85,21 @@ describe('dataService', () => {
       expect(orderService.checkout({ cliente, cart }).total).toBe(5990);
     });
 
-    it('una orden rechazada NO descuenta stock (verificado con spy)', () => {
+    it('una orden rechazada NO descuenta stock y guarda el motivo (verificado con spy)', () => {
       const spy = spyOn(productService, 'decreaseStock');
       const cart = [{ ...productService.getById('P002'), quantity: 1 }];
-      const order = orderService.checkout({ cliente, cart, simularRechazo: true });
+      const pago = { metodo: 'visa', aprobado: false, motivo: 'Fondos insuficientes', ultimos4: '0002' };
+      const order = orderService.checkout({ cliente, cart, pago });
       expect(order.estado).toBe('rechazada');
+      expect(order.pago).toEqual({ metodo: 'visa', ultimos4: '0002', motivo: 'Fondos insuficientes' });
       expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('la orden guardada nunca contiene el número completo de la tarjeta', () => {
+      const cart = [{ ...productService.getById('P002'), quantity: 1 }];
+      orderService.checkout({ cliente, cart, pago: { metodo: 'visa', aprobado: true, ultimos4: '1111' } });
+      expect(localStorage.getItem('f4a_v3_orders')).not.toContain('4111111111111111');
+      expect(orderService.getAll().at(-1).pago.ultimos4).toBe('1111');
     });
 
     it('getByUser devuelve el historial de un usuario', () => {
@@ -173,7 +182,7 @@ describe('dataService', () => {
       authService.login('admin@f4a.cl', 'admin123');
       resetDatabase();
       expect(productService.getById('P001')).not.toBeNull();
-      expect(storage.read('f4a_session', null)).toBeNull();
+      expect(storage.read('f4a_v3_session', null)).toBeNull();
     });
   });
 });

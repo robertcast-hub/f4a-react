@@ -2,6 +2,35 @@
 // Capa de persistencia: envuelve localStorage y crea "repositorios" CRUD genéricos.
 // Cada repositorio funciona como una tabla de una base de datos.
 
+// Claves de localStorage. Llevan versión (v3) para que los datos guardados por
+// versiones anteriores de la app (con otra estructura) no se mezclen con los nuevos.
+export const KEYS = {
+  products: 'f4a_v3_products',
+  categories: 'f4a_v3_categories',
+  users: 'f4a_v3_users',
+  orders: 'f4a_v3_orders',
+  session: 'f4a_v3_session',
+  cart: 'f4a_v3_cart',
+};
+
+// Claves usadas por la versión 2.x de la tienda
+export const LEGACY_KEYS = [
+  'f4a_products', 'f4a_categories', 'f4a_users', 'f4a_orders',
+  'f4a_session', 'f4a_cart', 'f4a_user', 'f4a_last_order',
+];
+
+/** Borra los datos de versiones anteriores. Devuelve cuántas claves eliminó. */
+export const cleanLegacyStorage = () => {
+  let removed = 0;
+  LEGACY_KEYS.forEach((key) => {
+    if (window.localStorage.getItem(key) !== null) {
+      window.localStorage.removeItem(key);
+      removed += 1;
+    }
+  });
+  return removed;
+};
+
 export const storage = {
   read(key, fallback) {
     try {

@@ -32,8 +32,13 @@ export const PurchaseResultPage = ({ success }) => {
           <p>Enviamos las claves y la boleta a <strong>{order.cliente.email}</strong>.</p>
         ) : (
           <>
-            <p>El medio de pago rechazó la transacción. Tu carrito sigue guardado, así que puedes intentarlo de nuevo.</p>
-            <Link to="/checkout" className="btn btn-success mb-3">Volver a realizar el pago</Link>
+            <p>
+              {order.pago?.motivo ?? 'El medio de pago rechazó la transacción.'}. Tu carrito sigue guardado,
+              así que puedes intentarlo de nuevo con el mismo u otro medio de pago.
+            </p>
+            <Link to="/checkout" state={{ cliente: order.cliente }} className="btn btn-success mb-3">
+              Volver a realizar el pago
+            </Link>
           </>
         )}
         <OrderReceipt order={order} />

@@ -97,6 +97,14 @@ h1, h2, h3, .h1, .h2, .h3, .h4, .h5, .brand-name, .price {
 .result--error { border-top: 4px solid var(--bs-danger); }
 .receipt .form-control[readonly], .receipt .form-select:disabled { background: var(--f4a-surface-2); }
 
+/* ---------- Medios de pago y pasarela ---------- */
+.pay-option { background: var(--f4a-surface-2); border: 1px solid var(--f4a-line); border-radius: .75rem; cursor: pointer; }
+.pay-option:hover { border-color: #5c636a; }
+.pay-option.is-selected { border-color: var(--f4a-green); box-shadow: 0 0 0 1px var(--f4a-green); }
+.gateway { scroll-margin-top: 130px; background: var(--f4a-surface-2); border: 1px solid var(--f4a-green); border-radius: .75rem; }
+.gateway__note { border-left: 3px solid #ffc107; padding-left: .75rem; }
+.gateway .table { --bs-table-bg: transparent; }
+
 /* ---------- Pie ---------- */
 .site-footer { background: var(--f4a-surface); border-top: 1px solid var(--f4a-line); }
 .site-footer a { color: #e9ecef; text-decoration: none; }

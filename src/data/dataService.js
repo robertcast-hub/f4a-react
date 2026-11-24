@@ -4,16 +4,8 @@
 // Los componentes SIEMPRE llaman a estos objetos (productService.getAll(), etc.),
 // lo que permite reemplazarlos por mocks en las pruebas con spyOn().
 
-import { createRepository, storage } from './storage';
+import { createRepository, storage, KEYS } from './storage';
 import { PRODUCTOS, CATEGORIAS, USUARIOS, ORDENES, BLOGS, REGIONES } from './db';
-
-const KEYS = {
-  products: 'f4a_products',
-  categories: 'f4a_categories',
-  users: 'f4a_users',
-  orders: 'f4a_orders',
-  session: 'f4a_session',
-};
 
 const normalize = (text = '') =>
   text.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
@@ -88,9 +80,10 @@ export const orderService = {
     return this.getAll().filter((o) => o.usuarioId === userId);
   },
   /**
-   * Registra una orden. El pago se simula: `simularRechazo` permite demostrar el flujo de error.
+   * Registra una orden con el resultado de la pasarela de pago simulada.
+   * `pago` = { metodo, aprobado, motivo, ultimos4 }. Nunca se guarda el número completo ni el CVV.
    */
-  checkout({ cliente, cart, usuarioId = null, simularRechazo = false }) {
+  checkout({ cliente, cart, usuarioId = null, pago = { metodo: 'webpay', aprobado: true } }) {
     const items = cart.map((p) => ({
       id: p.id,
       nombre: p.nombre,
@@ -98,7 +91,7 @@ export const orderService = {
       cantidad: p.quantity,
     }));
     const total = items.reduce((acc, i) => acc + i.precioUnitario * i.cantidad, 0);
-    const estado = simularRechazo ? 'rechazada' : 'pagada';
+    const estado = pago.aprobado ? 'pagada' : 'rechazada';
     const order = this.create({
       id: `ORD-${Date.now()}`,
       fecha: new Date().toISOString(),
@@ -107,6 +100,11 @@ export const orderService = {
       cliente,
       items,
       total,
+      pago: {
+        metodo: pago.metodo,
+        ultimos4: pago.ultimos4 ?? null,
+        motivo: pago.aprobado ? null : (pago.motivo ?? 'Pago rechazado'),
+      },
     });
     if (estado === 'pagada') productService.decreaseStock(items);
     return order;

@@ -47,8 +47,11 @@ todos deben poder explicar cualquier parte. Esta guía sigue el orden de los 4 i
 3. `CartContext.jsx`: `useState` con carga desde localStorage, `useEffect` para persistir, y `useMemo` para
    calcular total y cantidad.
 4. `CheckoutPage` + `CustomerForm`: un **formulario controlado** cuyo estado vive en la página. La comuna se
-   reinicia al cambiar la región. Si hay sesión, los datos se completan solos.
-5. **Responsivo:** abre las DevTools (Ctrl+Shift+M) y muestra 390 px, 768 px y 1280 px.
+   reinicia al cambiar la región. Si hay sesión, los datos se completan solos. El checkout tiene **dos pasos**
+   controlados con el estado `step` (`'datos'` → `'pago'`).
+5. `PaymentGateway`: la pasarela simulada. Recibe el medio de pago y el total por props y avisa el resultado con
+   `onResult`. Así el checkout decide qué hacer con la orden, y la pasarela no sabe nada de órdenes.
+6. **Responsivo:** abre las DevTools (Ctrl+Shift+M) y muestra 390 px, 768 px y 1280 px.
    - La grilla `row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4` muestra 1, 2, 3 o 4 columnas según el ancho.
    - El menú móvil y el desplegable de categorías se abren con estado de React (`aria-expanded`).
    - Las tablas del panel usan `table-responsive`.
@@ -68,6 +71,14 @@ todos deben poder explicar cualquier parte. Esta guía sigue el orden de los 4 i
 - *¿Qué es Context y cuándo usarlo?*
   Sirve para compartir estado entre muchos componentes sin pasar props por cada nivel. Lo usamos para el
   carrito y la sesión.
+- *¿Cómo funciona el pago si no hay banco?*
+  Es una pasarela simulada en `utils/payment.js`. Valida la tarjeta como una real: algoritmo de Luhn, marca
+  según el prefijo (4 = Visa, 51–55 = Mastercard), vencimiento y CVV. El resultado se decide con tarjetas de
+  prueba conocidas, igual que el modo test de Transbank o Stripe. En PayPal y Mercado Pago el cliente autoriza
+  o cancela.
+- *¿Guardan los datos de la tarjeta?*
+  No. `processPayment` devuelve solo los últimos 4 dígitos, y hay una prueba que verifica que el número
+  completo no aparece en localStorage.
 - *¿Dónde está el CRUD?*
   En `storage.js` está `createRepository`, que entrega `getAll`, `getById`, `create`, `update`, `remove` y
   `reset`. `dataService.js` lo reutiliza para productos, categorías, usuarios y órdenes. En el panel, cada
@@ -91,7 +102,7 @@ La rúbrica pide **demostrar 10 pruebas** para el nivel máximo. Ejecuta `npm te
 | 7 | `ProductCard.spec.jsx` | cambia a "Agregado" y vuelve tras 1,8 s | Estado + `jasmine.clock()` |
 | 8 | `CartContext.spec.jsx` | agregar dos veces suma cantidades | Lógica de estado global |
 | 9 | `QuantitySelector.spec.jsx` | el botón + llama a onChange con valor + 1 | Simulación de eventos |
-| 10 | `CheckoutPage.spec.jsx` | pago rechazado navega a error y conserva el carrito | Flujo completo con mock |
+| 10 | `PaymentGateway.spec.jsx` | tarjeta aprobada entrega solo los últimos 4 dígitos | Evento + mock + seguridad |
 
 **Cómo explicar una prueba (patrón AAA)**
 
@@ -136,12 +147,13 @@ componente con Router, sesión y carrito, como en la app real.
   (`ProtectedRoute.spec`).
 - `spyOn(window, 'confirm').and.returnValue(false)` simula que el usuario cancela una eliminación
   (`ProductsAdminPage.spec`).
-- Extra: `jasmine.clock()` controla el tiempo para no esperar 1,8 segundos reales.
+- Extra: `jasmine.clock()` controla el tiempo: el mensaje "Agregado" (1,8 s) y el "Procesando pago" de la
+  pasarela (1,5 s) se prueban sin esperar.
 
 **Análisis de resultados.** Abre `coverage/html/index.html`:
 
-- 163 pruebas, 0 fallidas.
-- Sentencias 92,6%, ramas 87,3%, funciones 89,7%, líneas 94,7%.
+- 194 pruebas, 0 fallidas.
+- Sentencias 93,6%, ramas 87,8%, funciones 90,7%, líneas 95,4%.
 - Lo menos cubierto son ramas de páginas del admin (por ejemplo, "producto no encontrado") y `LegalPage`.
   Es contenido estático o un caso de borde de bajo riesgo, y está documentado como mejora pendiente.
 
@@ -167,14 +179,16 @@ componente con Router, sesión y carrito, como en la app real.
 
 1. Inicio → agregar 2 productos → el contador del carrito cambia.
 2. Carrito → aumentar cantidad → el total se recalcula.
-3. Checkout vacío → "Pagar" → aparecen los errores en rojo.
-4. Completar datos → marcar "simular pago rechazado" → vista de error → "Volver a realizar el pago".
-5. Desmarcar → pagar → vista de compra exitosa con boleta.
-6. Login con `admin@f4a.cl` → Dashboard → Órdenes → la orden recién creada → Productos → el stock bajó.
+3. Checkout vacío → "Pagar ahora" → aparecen los errores en rojo, incluido "Selecciona un medio de pago".
+4. Completar datos → elegir **Webpay** → tarjeta `4000 0000 0000 0002` → "Procesando…" → vista de error con
+   "Fondos insuficientes" → "Volver a realizar el pago".
+5. Elegir **Visa** → tarjeta `4111 1111 1111 1111` → compra exitosa con "Visa · tarjeta terminada en 1111".
+6. Otra compra con **PayPal** → "Autorizar pago".
+7. Login con `admin@f4a.cl` → Órdenes (columna "Medio de pago") → la orden recién creada → Productos → el stock bajó.
 
 ## Cambios realizados frente a la versión anterior (por si preguntan por el historial de GitHub)
 
-- Se reemplazó Vitest por **Jasmine + Karma**, que es lo exigido, y se pasó de 10 a 163 pruebas con mocks y cobertura.
+- Se reemplazó Vitest por **Jasmine + Karma**, que es lo exigido, y se pasó de 10 a 194 pruebas con mocks y cobertura.
 - Se agregaron las vistas que faltaban: Ofertas, Blogs, Categorías, Productos y todo el panel administrativo.
 - Se corrigieron:
   - el login que aceptaba cualquier contraseña de administrador;
@@ -183,3 +197,6 @@ componente con Router, sesión y carrito, como en la app real.
   - el menú móvil y las FAQ, que no abrían;
   - el pago fallido, que era inalcanzable.
 - El checkout ahora tiene apellidos, dirección, región, comuna e indicaciones (Figura 6).
+- Se agregó una pasarela de pago simulada con los 5 medios de pago del sitio y tarjetas de prueba.
+- Las claves de localStorage llevan versión (`f4a_v3_`) y se borran los datos de la versión anterior, que
+  mostraban precios sin oferta y productos con otra estructura.

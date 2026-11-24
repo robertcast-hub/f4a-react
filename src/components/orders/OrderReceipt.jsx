@@ -3,6 +3,7 @@
 import { CustomerForm } from './CustomerForm';
 import { OrderItemsTable } from './OrderItemsTable';
 import { formatDate } from '../../utils/format';
+import { describePayment } from '../../utils/payment';
 
 export const OrderReceipt = ({ order }) => (
   <div className="receipt">
@@ -13,6 +14,10 @@ export const OrderReceipt = ({ order }) => (
         {order.estado === 'pagada' ? 'Pagada' : 'Rechazada'}
       </span>
     </div>
+    <p className="small mb-3" data-testid="payment-info">
+      Medio de pago: <strong>{describePayment(order.pago)}</strong>
+      {order.pago?.motivo && <> · Motivo del rechazo: <strong className="text-danger">{order.pago.motivo}</strong></>}
+    </p>
     <CustomerForm data={order.cliente} onChange={() => {}} readOnly />
     <h2 className="h5 fw-bold mt-4">Detalle de la compra</h2>
     <OrderItemsTable items={order.items} total={order.total} />

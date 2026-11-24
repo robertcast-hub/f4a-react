@@ -45,12 +45,14 @@ export const ORDENES = [
       { id: 'P017', nombre: 'Steam Random Key VIP', precioUnitario: 2990, cantidad: 2 },
     ],
     total: 20970,
+    pago: { metodo: 'webpay', ultimos4: '1111', motivo: null },
   },
   {
     id: 'ORD-20260002', fecha: '2026-11-08T19:05:00.000Z', estado: 'rechazada', usuarioId: 'U003',
     cliente: { nombre: 'Camila', apellidos: 'Rojas', email: 'camila@correo.cl', calle: 'Calle Valparaíso 456', departamento: '12B', region: 'Región de Valparaíso', comuna: 'Viña del Mar', indicaciones: 'Dejar en conserjería' },
     items: [{ id: 'P012', nombre: 'ChatGPT Plus (1 mes)', precioUnitario: 18990, cantidad: 1 }],
     total: 18990,
+    pago: { metodo: 'paypal', ultimos4: null, motivo: 'El usuario canceló el pago en PayPal' },
   },
   {
     id: 'ORD-20260003', fecha: '2026-11-12T10:40:00.000Z', estado: 'pagada', usuarioId: 'U003',
@@ -60,6 +62,7 @@ export const ORDENES = [
       { id: 'P009', nombre: 'Windows 11 Pro', precioUnitario: 9990, cantidad: 1 },
     ],
     total: 28980,
+    pago: { metodo: 'mastercard', ultimos4: '4444', motivo: null },
   },
 ];
 
